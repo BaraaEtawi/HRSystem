@@ -1,0 +1,39 @@
+# Python
+__pycache__/
+*.py[cod]
+
+# Virtual environments
+venv/
+.venv/
+ENV/
+
+# Environment and secrets
+.env
+
+# Local database and vector store
+app.db
+.chroma/
+**/.chroma/
+
+# Logs
+logs/
+*.log
+
+# Build / packaging / test cache
+build/
+dist/
+*.egg-info/
+.eggs/
+.pytest_cache/
+
+# IDE / editor settings
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# data files
+hr_policy.md
+it_policy.md

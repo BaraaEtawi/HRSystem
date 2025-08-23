@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Rubix Chat System · Login</title>
+    <style>
+      :root {
+        --bg:#0b0f17; --panel:#0b0f17; --card:#0b0f17; --text:#e5e7eb; --muted:#9aa4b2; --line:#1f2937; --pink:#e6007a; --input:#111827; --input-border:#1f2a3a;
+      }
+      html, body { height:100%; margin:0; font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; background: var(--bg); color: var(--text); }
+      *, *::before, *::after { box-sizing: border-box; }
+      .wrap { min-height:100%; display:grid; place-items:center; padding:16px; position: relative; overflow: hidden; }
+      /* ambient animated glow */
+      .wrap::before { content:""; position:absolute; width:600px; height:600px; left:-220px; top:-220px; border-radius:50%; background: radial-gradient(closest-side, rgba(230,0,122,0.18), transparent 70%); filter: blur(40px); animation: float1 12s ease-in-out infinite alternate; pointer-events:none; }
+      .wrap::after { content:""; position:absolute; width:520px; height:520px; right:-200px; bottom:-200px; border-radius:50%; background: radial-gradient(closest-side, rgba(34,211,238,0.16), transparent 70%); filter: blur(40px); animation: float2 14s ease-in-out infinite alternate; pointer-events:none; }
+      @keyframes float1 { from { transform: translate(0,0) } to { transform: translate(60px,40px) } }
+      @keyframes float2 { from { transform: translate(0,0) } to { transform: translate(-40px,-30px) } }
+      .card { width: min(100%, 440px); background: var(--panel); border: 1px solid rgba(255,255,255,0.06); border-radius: 16px; padding: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.35); margin-inline: 8px; }
+      .logo { display:grid; place-items:center; margin-top: 6px; }
+      .logo img { width: 96px; height: 96px; border-radius: 999px; box-shadow: 0 2px 14px rgba(230,0,122,0.35); display:block; transition: transform .3s ease, box-shadow .3s ease; }
+      .logo img:hover { transform: scale(1.05); box-shadow: 0 6px 22px rgba(230,0,122,0.45); }
+      h1 { text-align:center; font-size: 24px; margin: 16px 0 18px 0; font-weight: 800; }
+      label { display:block; font-size: 13px; color: var(--muted); margin: 10px 0 6px 10px; }
+      .input-wrap { position: relative; }
+      input { width:100%; background: var(--input); border:1px solid var(--input-border); color:var(--text); border-radius: 12px; padding: 14px 16px; outline: none; transition: border .15s ease, box-shadow .15s ease; }
+      input::placeholder { color: #7b8391; }
+      input:focus { border-color: #e6007a80; box-shadow: 0 0 0 3px rgba(230,0,122,0.20); }
+      .toggle-pass { position:absolute; right: 8px; top:50%; transform: translateY(-50%); background:transparent; border:0; color:#cbd5e1; cursor:pointer; font-size:12px; padding:6px 8px; }
+      .btn { width:100%; background: var(--pink); border:0; color:#fff; border-radius: 12px; padding: 14px 16px; cursor:pointer; font-weight: 800; letter-spacing:.2px; margin-top: 14px; position: relative; overflow: hidden; transition: transform .08s ease, opacity .2s ease; }
+      .btn:hover { transform: translateY(-1px) scale(1.01); }
+      .btn:active { transform: scale(0.99); }
+      .btn.loading { opacity: 0.9; pointer-events: none; }
+      .btn.loading::after { content:""; position:absolute; right:16px; top:50%; width:16px; height:16px; border:2px solid rgba(255,255,255,0.6); border-left-color: transparent; border-radius:50%; transform: translateY(-50%); animation: spin .8s linear infinite; }
+      @keyframes spin { to { transform: translateY(-50%) rotate(360deg) } }
+      .btn.success { background:#16a34a; }
+      .ripple { position:absolute; border-radius:50%; background: rgba(255,255,255,0.35); transform: scale(0); animation: ripple .6s ease-out forwards; pointer-events:none; }
+      @keyframes ripple { to { transform: scale(6); opacity: 0; } }
+      .meta { margin-top: 14px; text-align:center; color: var(--muted); font-size: 14px; }
+      .meta a { color: var(--pink); text-decoration: none; font-weight: 700; }
+      .error { margin-top: 8px; color: #fecaca; font-size: 12px; min-height:16px; text-align:center; }
+      .shake { animation: shake .35s ease; }
+      @keyframes shake { 10%, 90% { transform: translateX(-1px) } 20%, 80% { transform: translateX(2px) } 30%, 50%, 70% { transform: translateX(-4px) } 40%, 60% { transform: translateX(4px) } }
+      .frame { border:1px solid rgba(255,255,255,0.06); border-radius: 20px; padding: 26px; background: rgba(255,255,255,0.01); }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="card frame">
+        <div class="logo">
+          <img id="rubixLogo" src="/rubix_consult_logo.jpg" alt="Rubix Logo" />
+        </div>
+        <h1>Rubix Chat System</h1>
+
+        <label>Username</label>
+        <div class="input-wrap">
+          <input id="email" type="email" placeholder="you@company.com" />
+        </div>
+
+        <label>Password</label>
+        <div class="input-wrap">
+          <input id="password" type="password" placeholder="••••••••" />
+          <button id="togglePwd" class="toggle-pass" title="Show/Hide">Show</button>
+        </div>
+
+        <button id="loginBtn" class="btn">Login</button>
+        <div id="msg" class="error"></div>
+        <p class="meta">Don’t have an account? <a href="#" id="registerLink">Register</a></p>
+      </div>
+    </div>
+
+    <script>
+      const apiBase = location.origin + "/api/v1";
+      // Ensure logo displays: try alternative extensions if the primary path is missing
+      const logoEl = document.getElementById('rubixLogo');
+      logoEl.addEventListener('error', () => {
+        const url = new URL(logoEl.src);
+        if (url.pathname.endsWith('/rubix_consult_logo.jpg')) {
+          logoEl.src = '/rubix_consult_logo.jpeg';
+        } else if (url.pathname.endsWith('/rubix_consult_logo.jpeg')) {
+          logoEl.src = '/rubix_consult_logo.png';
+        }
+      });
+      const emailEl = document.getElementById('email');
+      const passwordEl = document.getElementById('password');
+      const loginBtn = document.getElementById('loginBtn');
+      const registerLink = document.getElementById('registerLink');
+      const msg = document.getElementById('msg');
+
+      function saveToken(t){ localStorage.setItem('token', t); }
+      function gotoChat(){ location.href = '/chat.html'; }
+
+      function addRipple(e){
+        const rect = loginBtn.getBoundingClientRect();
+        const d = Math.max(rect.width, rect.height);
+        const ripple = document.createElement('span');
+        ripple.className = 'ripple';
+        ripple.style.width = ripple.style.height = d + 'px';
+        ripple.style.left = (e.clientX - rect.left - d/2) + 'px';
+        ripple.style.top = (e.clientY - rect.top - d/2) + 'px';
+        loginBtn.appendChild(ripple);
+        setTimeout(()=> ripple.remove(), 650);
+      }
+
+      async function login(e){
+        msg.textContent='';
+        if (e) addRipple(e);
+        loginBtn.classList.add('loading');
+        loginBtn.textContent = 'Logging in…';
+        try{
+          const res = await fetch(`${apiBase}/auth/login`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ email: emailEl.value.trim(), password: passwordEl.value })});
+          if(!res.ok) throw new Error(await res.text());
+          const data = await res.json();
+          saveToken(data.access_token);
+          loginBtn.classList.remove('loading');
+          loginBtn.classList.add('success');
+          loginBtn.textContent = 'Welcome ✓';
+          setTimeout(gotoChat, 550);
+        }catch(e){
+          loginBtn.classList.remove('loading');
+          loginBtn.textContent = 'Login';
+          msg.textContent='Login failed';
+          const card = document.querySelector('.card');
+          card.classList.remove('shake');
+          void card.offsetWidth;
+          card.classList.add('shake');
+        }
+      }
+
+      async function register(){
+        msg.textContent='';
+        try{
+          const res = await fetch(`${apiBase}/auth/register`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ email: emailEl.value.trim(), password: passwordEl.value, full_name: '' })});
+          if(!res.ok) throw new Error(await res.text());
+          await login();
+        }catch(e){ msg.textContent='Registration failed'; }
+      }
+
+      loginBtn.addEventListener('click', login);
+      registerLink.addEventListener('click', (e)=>{ e.preventDefault(); register(); });
+      passwordEl.addEventListener('keydown', (e)=>{ if(e.key==='Enter') login(e); });
+      emailEl.addEventListener('keydown', (e)=>{ if(e.key==='Enter') login(e); });
+      const togglePwd = document.getElementById('togglePwd');
+      togglePwd.addEventListener('click', (e)=>{ e.preventDefault(); const isPwd = passwordEl.type==='password'; passwordEl.type = isPwd ? 'text' : 'password'; togglePwd.textContent = isPwd ? 'Hide' : 'Show'; passwordEl.focus(); });
+    </script>
+  </body>
+  </html>
+
