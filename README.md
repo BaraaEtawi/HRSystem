@@ -69,6 +69,8 @@ check `.env.example`
 
 ### 3) Ingest policy data
 This builds the Chroma vector index from the policy markdown files in `data/`.
+
+**Important**: Ensure your policy/source data files are placed inside the `data/` folder before running the ingest command. Only files found under `data/` will be indexed.
 ```bash
 python -m app.rag.ingest
 # Example output: "Ingested <N> chunks into Chroma collection 'policies'"
