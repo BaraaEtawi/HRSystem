@@ -2,6 +2,38 @@
 
 A FastAPI-powered RAG assistant designed for company policy Q&A. It processes markdown policy documents into a local Chroma vector store and provides authenticated chat-based answers using either a local Ollama model (the default in this project) or a Hugging Face Transformers pipeline.
 
+### Quickstart: commands from start to end
+```powershell
+# From project root
+
+# 1) Setup
+python -m venv venv
+venv\Scripts\activate
+python -m pip install --upgrade pip
+pip install -r requirements.txt
+
+# 2) Create .env (edit values as needed)
+Copy-Item .env.example .env  # if available; otherwise create manually
+
+# 3) (Optional) Start Ollama and pull model
+ollama serve
+ollama pull llama3.2:3b
+
+# 4) Ingest data (ensure files are in the data/ folder)
+python -m app.rag.ingest
+
+# 5) Initialize the database
+python -m app.init_db
+
+# 6) Run the API server
+uvicorn app.main:app --reload
+```
+
+- Open `http://127.0.0.1:8000/`.
+
+- If you want to register, just write the name and password in the boxes and click Register.
+
+
 ### Prerequisites
 - Python 3.10
 - pip
