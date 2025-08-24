@@ -116,7 +116,7 @@ python -m app.init_db
 
 ### 5) Run the API server
 ```bash
-uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+uvicorn app.main:app --reload 
 ```
 Open `http://127.0.0.1:8000/docs` for interactive Swagger UI.
 
