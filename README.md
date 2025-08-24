@@ -1,4 +1,4 @@
-## Rubix Chat API
+## Rubix Chat System
 
 A FastAPI-powered RAG assistant designed for company policy Q&A. It processes markdown policy documents into a local Chroma vector store and provides authenticated chat-based answers using either a local Ollama model (the default in this project) or a Hugging Face Transformers pipeline.
 
